@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitmap draw</title>
+</head>
+<body>
+    Size of pixel: <input type="number" min="1" name="size" id="size" value="10" onchange="resizeData()"><br>
+    Width in pixels: <input type="number" min="1" step="1" name="width" id="width" value="16" onchange="resizeData()"><br>
+    Height in pixels: <input type="number" min="1" step="1" name="height" id="height" value="8" onchange="resizeData()"><br>
+    <b>Color: </b>
+    <input type="radio" name="color" id="BLACK"> BLACK 
+    <input type="radio" name="color" id="WHITE" checked> WHITE<br>
+    <div id="draw"></div>
+    Output: <br>
+    <textarea id="output"></textarea>
+    <script>
+        // https://stackoverflow.com/a/48970682/7361496
+        var primaryMouseButtonDown = false;
+
+        function setPrimaryButtonState(e) {
+        var flags = e.buttons !== undefined ? e.buttons : e.which;
+        primaryMouseButtonDown = (flags & 1) === 1;
+        }
+
+        document.addEventListener("mousedown", setPrimaryButtonState);
+        document.addEventListener("mousemove", setPrimaryButtonState);
+        document.addEventListener("mouseup", setPrimaryButtonState);
+
+        let data = [];
+
+        function resizeData() {
+            let width = Number(document.getElementById("width").value);
+            let height = Number(document.getElementById("height").value);
+            let size = Number(document.getElementById("size").value);
+            while(data.length<height) {
+                data.push([]);
+            }
+            while(data.length>height) {
+                data.pop();
+            }
+            for(let i=0; i<data.length; i++) {
+                while(data[i].length<width) {
+                    data[i].push(0);
+                }
+                while(data[i].length>width) {
+                    data[i].pop();
+                }
+            }
+            let html = "";
+            for(let i=0; i<data.length; i++) {
+                html+='<div style="height:'+size+'px">';
+                for(let j=0; j<data[i].length; j++) {
+                    html+='<span style="user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" onmouseover="updateItem('+j+','+i+',true)" onmousedown="updateItem('+j+','+i+',true,true)" id="item_'+i+'_'+j+'"></span>';
+                }
+                html += "</div>";
+            }
+            document.getElementById("draw").innerHTML = html;
+
+            for(let i=0; i<data.length; i++) {
+                for(let j=0; j<data[i].length; j++) {
+                    updateItem(j, i, false);
+                }
+            }
+        }
+        function updateItem(x,y,act,force=false) {
+            console.log(primaryMouseButtonDown);
+            if(act && primaryMouseButtonDown || force) {
+                let color = document.querySelector('input[name="color"]:checked').id;
+                console.log(color);
+                data[y][x] = color == "WHITE" ? 1 : 0;
+            }
+            let el = document.getElementById("item_"+y+"_"+x);
+            if(data[y][x]) {
+                el.style.backgroundColor = "red";
+            } else {
+                el.style.backgroundColor = "blue";
+            }
+            let output = "";
+            for(let i=0; i<data[0].length; i++) {
+                for(let j=0; j<data.length; j++) {
+                    output += data[j][i];
+                }
+            }
+            document.getElementById("output").innerText=output;
+        }
+        
+        resizeData();
+    </script>
+</body>
+</html>
