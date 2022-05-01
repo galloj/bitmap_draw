@@ -66,10 +66,8 @@
             }
         }
         function updateItem(x,y,act,force=false) {
-            console.log(primaryMouseButtonDown);
             if(act && primaryMouseButtonDown || force) {
                 let color = document.querySelector('input[name="color"]:checked').id;
-                console.log(color);
                 data[y][x] = color == "WHITE" ? 1 : 0;
             }
             let el = document.getElementById("item_"+y+"_"+x);
