@@ -13,7 +13,7 @@
     <b>Color: </b>
     <input type="radio" name="color" id="BLACK"> BLACK 
     <input type="radio" name="color" id="WHITE" checked> WHITE<br>
-    <div id="draw"></div>
+    <div id="draw" style="border: 3px solid gray;display: inline-block;font-size: 0;"></div>
     Output: <br>
     <textarea id="output"></textarea>
     <script>
@@ -51,7 +51,7 @@
             }
             let html = "";
             for(let i=0; i<data.length; i++) {
-                html+='<div style="height:'+size+'px">';
+                html+='<div>';
                 for(let j=0; j<data[i].length; j++) {
                     html+='<span style="user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" onmouseover="updateItem('+j+','+i+',true)" onmousedown="updateItem('+j+','+i+',true,true)" id="item_'+i+'_'+j+'"></span>';
                 }
