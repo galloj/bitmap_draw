@@ -13,7 +13,8 @@
     <b>Color: </b>
     <input type="radio" name="color" id="BLACK"> BLACK 
     <input type="radio" name="color" id="WHITE" checked> WHITE<br>
-    <div id="draw" style="border: 3px solid gray;display: inline-block;font-size: 0;"></div>
+    Show grid: <input type="checkbox" name="show_grid" id="show_grid" onchange="resizeData()"><br>
+    <div id="draw" style="border: 3px solid gray;display: inline-block;font-size: 0;"></div><br>
     Output: <br>
     <textarea id="output"></textarea>
     <script>
@@ -35,6 +36,11 @@
             let width = Number(document.getElementById("width").value);
             let height = Number(document.getElementById("height").value);
             let size = Number(document.getElementById("size").value);
+            let show_grid = document.getElementById("show_grid").checked;
+            let grid_style = "";
+            if(show_grid) {
+                grid_style = "border: 1px solid gray;";
+            }
             while(data.length<height) {
                 data.push([]);
             }
@@ -53,7 +59,7 @@
             for(let i=0; i<data.length; i++) {
                 html+='<div>';
                 for(let j=0; j<data[i].length; j++) {
-                    html+='<span style="user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" onmouseover="updateItem('+j+','+i+',true)" onmousedown="updateItem('+j+','+i+',true,true)" id="item_'+i+'_'+j+'"></span>';
+                    html+='<span style="'+grid_style+'user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" onmouseover="updateItem('+j+','+i+',true)" onmousedown="updateItem('+j+','+i+',true,true)" id="item_'+i+'_'+j+'"></span>';
                 }
                 html += "</div>";
             }
