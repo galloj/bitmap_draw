@@ -7,6 +7,7 @@
     <title>Bitmap draw</title>
 </head>
 <body>
+    <h1>Bitmap draw</h1>
     Size of pixel: <input type="number" min="1" name="size" id="size" value="10" onchange="resizeData()"><br>
     Width in pixels: <input type="number" min="1" step="1" name="width" id="width" value="16" onchange="resizeData()"><br>
     Height in pixels: <input type="number" min="1" step="1" name="height" id="height" value="8" onchange="resizeData()"><br>
@@ -20,15 +21,17 @@
     <script>
         // https://stackoverflow.com/a/48970682/7361496
         var primaryMouseButtonDown = false;
+        var secondaryMouseButtonDown = false;
 
-        function setPrimaryButtonState(e) {
+        function setMouseButtonsState(e) {
         var flags = e.buttons !== undefined ? e.buttons : e.which;
         primaryMouseButtonDown = (flags & 1) === 1;
+        secondaryMouseButtonDown = (flags & 2) === 2;
         }
 
-        document.addEventListener("mousedown", setPrimaryButtonState);
-        document.addEventListener("mousemove", setPrimaryButtonState);
-        document.addEventListener("mouseup", setPrimaryButtonState);
+        document.addEventListener("mousedown", setMouseButtonsState);
+        document.addEventListener("mousemove", setMouseButtonsState);
+        document.addEventListener("mouseup", setMouseButtonsState);
 
         let data = [];
 
@@ -59,11 +62,19 @@
             for(let i=0; i<data.length; i++) {
                 html+='<div>';
                 for(let j=0; j<data[i].length; j++) {
-                    html+='<span style="'+grid_style+'user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" onmouseover="updateItem('+j+','+i+',true)" onmousedown="updateItem('+j+','+i+',true,true)" id="item_'+i+'_'+j+'"></span>';
+                    html+='<span style="'+grid_style+'user-select:none;display:inline-block;width:'+size+'px;height:'+size+'px" id="item_'+i+'_'+j+'"></span>';
                 }
                 html += "</div>";
             }
             document.getElementById("draw").innerHTML = html;
+            for(let i=0; i<data.length; i++) {
+                for(let j=0; j<data[i].length; j++) {
+                    var el = document.getElementById("item_"+i+"_"+j);
+                    el.addEventListener("mousedown", (e) => {setMouseButtonsState(e); updateItem(j, i, true, true); console.log("fired")});
+                    el.addEventListener("mouseover", (e) => updateItem(j, i, true));
+                }
+            }
+            document.getElementById("draw").addEventListener("contextmenu", event => event.preventDefault());
 
             for(let i=0; i<data.length; i++) {
                 for(let j=0; j<data[i].length; j++) {
@@ -71,24 +82,35 @@
                 }
             }
         }
-        function updateItem(x,y,act,force=false) {
-            if(act && primaryMouseButtonDown || force) {
-                let color = document.querySelector('input[name="color"]:checked').id;
-                data[y][x] = color == "WHITE" ? 1 : 0;
-            }
-            let el = document.getElementById("item_"+y+"_"+x);
-            if(data[y][x]) {
-                el.style.backgroundColor = "white";
-            } else {
-                el.style.backgroundColor = "black";
-            }
+
+        function dataToBitstring() {
             let output = "";
             for(let i=0; i<data[0].length; i++) {
                 for(let j=0; j<data.length; j++) {
                     output += data[j][i];
                 }
             }
-            document.getElementById("output").innerText=output;
+            return output;
+        }
+
+        function updateItem(x, y, act, force=false) {
+            if(act && (primaryMouseButtonDown || secondaryMouseButtonDown) || force) {
+                let color = document.querySelector('input[name="color"]:checked').id;
+                var mouseColorInvertion = secondaryMouseButtonDown;
+                var checkboxColorInvertion = color == "WHITE";
+                data[y][x] = (mouseColorInvertion != checkboxColorInvertion) ? 1 : 0;
+            }
+
+            // update element color
+            let el = document.getElementById("item_"+y+"_"+x);
+            if(data[y][x]) {
+                el.style.backgroundColor = "white";
+            } else {
+                el.style.backgroundColor = "black";
+            }
+
+            // update the output textbox
+            document.getElementById("output").innerText = dataToBitstring();
         }
         
         resizeData();
